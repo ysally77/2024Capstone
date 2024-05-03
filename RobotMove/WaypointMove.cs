@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class WaypointMove : MonoBehaviour
 {
-    public float force = 5;
+    public float force = 5; //35~40로 설정. 그 이하는 움직이지 않음
     public Rigidbody rb;
-    public float turn_speed = 1F;
-    public float dis_changewaypoint = 10F;
+    public float turn_speed = 1F; //3~5로 설정.
+    public float dis_changewaypoint = 10F; // waypoint를 지날 반경
     private Vector3 current_waypoint;
     private List<Vector3> waypoints = new List<Vector3>();
     private int waypoint_list_position = 0;
