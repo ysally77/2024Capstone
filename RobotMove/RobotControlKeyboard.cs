@@ -6,8 +6,8 @@ using UnityEngine;
 public class RobotControlKeyboard : MonoBehaviour
 {
 
-    private const string HORIZONTAL = "Horizontal";
-    private const string VERTICAL = "Vertical";
+    private const string HORIZONTAL = "Horizontal";//위 아래 키
+    private const string VERTICAL = "Vertical";//좌 우키
 
     private float horizontalInput;
     private float verticalInput;
@@ -15,11 +15,11 @@ public class RobotControlKeyboard : MonoBehaviour
     [SerializeField] private float motorForce;
     [SerializeField] private float horizontalRate;
 
-    //¾Õ ¹ÙÄû
+    //앞바퀴
     [SerializeField] private WheelCollider FLwheel;
     [SerializeField] private WheelCollider FRwheel;
 
-    //µÞ ¹ÙÄû
+    //뒷바퀴
     [SerializeField] private WheelCollider BLwheel;
     [SerializeField] private WheelCollider BRwheel;
 
