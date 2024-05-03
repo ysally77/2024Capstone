@@ -38,8 +38,11 @@ public class WaypointMove : MonoBehaviour
         Moveobject();
 
     }
+
+    
     //waypoint조절:1번=0,0.5,0, 2번=-127,0.5,90 등등 직접 수정
     //시각화할때는 구를 생성하여 진행했음
+    
     void SetWaypoints()
     {
         waypoints.Add(new Vector3(4.9f, 0.5f, -16.2f));
