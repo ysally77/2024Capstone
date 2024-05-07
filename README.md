@@ -14,4 +14,4 @@ zmp 계산하여 S 계산
 
 # TASK(To Do List)
 1. A* 완성
-2.dsad
+2.dsaddasd asdsad asdad아아 
