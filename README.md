@@ -10,7 +10,9 @@
 Waypoint를 찍어 이동: WaypointMove
 
 ## ZMP_Calculation 폴더
-zmp 계산하여 S 계산
+1. zmp  계산 -->완료
+2. S 계산 코드 진행중
+
 
 # TASK(To Do List)
 1. A* 완성
