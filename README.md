@@ -23,5 +23,5 @@ GameObject에 A* 만들고 Grid, PathRequestManager, Pathfinding 스크립트 �
 
 
 # TASK(To Do List)
-1. A* 완성
+1. A* 완성--> 데이터 출력(위치, 속도, 가속도, 회전속도 등)
 2. URDF 파일 import 로봇 구동
