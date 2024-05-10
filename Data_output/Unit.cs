@@ -1,92 +1,6 @@
-/*using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-
-public class Unit : MonoBehaviour
-{
-    [SerializeField] private Transform[] targets;
-    private int currentTargetIndex = 0;
-    private Vector3[] path;
-
-    public float speed = 10f;
-    private int targetIndex = 0;
-
-    void Start()
-    {
-        if (targets.Length > 0)
-        {
-            SetNextTarget();
-        }
-    }
-
-    private void SetNextTarget()
-    {
-        PathRequestManager.RequestPath(transform.position, targets[currentTargetIndex].position, OnPathFound);
-    }
-
-    public void OnPathFound(Vector3[] newPath, bool pathSuccessful)
-    {
-        if (pathSuccessful)
-        {
-            path = newPath;
-            targetIndex = 0;
-            StopCoroutine("FollowPath");
-            StartCoroutine("FollowPath");
-        }
-    }
-
-    IEnumerator FollowPath()
-    {
-        Vector3 currentWaypoint = path[0];
-
-        while (true)
-        {
-            if (transform.position == currentWaypoint)
-            {
-                targetIndex++;
-                if (targetIndex >= path.Length)
-                {
-                    if (currentTargetIndex < targets.Length - 1)
-                    {
-                        currentTargetIndex++;
-                        SetNextTarget();
-                    }
-                    else
-                    {
-                        yield break;
-                    }
-                }
-                currentWaypoint = path[targetIndex];
-            }
-
-            transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, speed * Time.deltaTime);
-            yield return null;
-        }
-    }
-
-    public void OnDrawGizmos()
-    {
-        if (path != null)
-        {
-            for (int i = targetIndex; i < path.Length; i++)
-            {
-                Gizmos.color = Color.black;
-                Gizmos.DrawCube(path[i], Vector3.one);
-
-                if (i == targetIndex)
-                {
-                    Gizmos.DrawLine(transform.position, path[i]);
-                }
-                else
-                {
-                    Gizmos.DrawLine(path[i - 1], path[i]);
-                }
-            }
-        }
-    }
-}
-waypointÂï¾î ÀÌµ¿ÇÏ´Â A*¾Ë°í¸®Áò
-*/
+//ë°ì´í„° ì¶œë ¥ìš©ìœ¼ë¡œ ê¸°ì¡´ì˜ Astar\Unit.cs ì½”ë“œ ìˆ˜ì •í•˜ì—¬
+//Time.timeì„ ì´ìš©í•˜ì—¬ 4m/së¡œ ìƒì„±ëœ A*ê²½ë¡œ ì´ë™ì‹œ
+//ìœ„ì¹˜(x,y,z), ì†ë„, ê°€ì†ë„, xì¶• ì´ë™ ê°ë„, yì¶• ì´ë™ ê°ë„, zì¶• ì´ë™ ê°ë„ ì¶œë ¥  
 
 using UnityEngine;
 using System.Collections;
@@ -131,7 +45,7 @@ public class Unit : MonoBehaviour
         Vector3 prevPosition = transform.position;
         float prevTime = Time.time;
 
-        string filePath = Application.dataPath + "/output_data3.txt"; // ÆÄÀÏ °æ·Î ¼³Á¤
+        string filePath = Application.dataPath + "/output_data3.txt"; // íŒŒì¼ ê²½ë¡œ ì„¤ì •
 
         while (true)
         {
@@ -162,13 +76,13 @@ public class Unit : MonoBehaviour
 
             transform.position = Vector3.MoveTowards(transform.position, currentWaypoint, speed * Time.deltaTime);
 
-            // x, y, z Ãà ¹æÇâÀÇ °¢µµ °è»ê
+            // x, y, z ì¶• ë°©í–¥ì˜ ê°ë„ ê³„ì‚°
             Vector3 direction = transform.position - prevPosition;
             float angleX = Mathf.Atan2(direction.y, direction.z) * Mathf.Rad2Deg;
             float angleY = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
             float angleZ = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
 
-            // À§Ä¡, ¼Óµµ, °¡¼Óµµ, °¢µµ °ªÀ» ÅØ½ºÆ® ÆÄÀÏ¿¡ ±â·Ï
+            // ìœ„ì¹˜, ì†ë„, ê°€ì†ë„, ê°ë„ ê°’ì„ í…ìŠ¤íŠ¸ íŒŒì¼ì— ê¸°ë¡
             using (StreamWriter writer = new StreamWriter(filePath, true))
             {
                 writer.WriteLine("Time, " + Time.time + ", Position, " + transform.position + ", Velocity, " + velocity + ", Acceleration, " + acceleration + ", AngleX, " + angleX + ", AngleY, " + angleY + ", AngleZ, " + angleZ);
