@@ -8,7 +8,7 @@ while true
     pitch = input('pitch 값을 입력하세요: ');
     yaw = input('yaw 값을 입력하세요: ');
     
-    t = 1;
+    t = 0.1;
     p = roll / t;
     q = pitch / t;
     r = yaw / t;
@@ -20,8 +20,9 @@ while true
     L = 0.85;
     W = 0.5;
     H = 1.1;
-    a_Gx = 0;
-    a_Gy = 0;
+    a_Gx = 3;
+    v = 4.16;
+    w = 1;
 
     I_xx = 33.07;
     I_yy = 26.25;
@@ -44,15 +45,15 @@ while true
     ];
 
     x_zmp = (-2 * I_yy * alpha_y - 2 * (I_xx - I_zz) * p * r + 2 * m * g * H * sind(pitch) + 2 * m * H * a_Gx) / (2 * m * (-g * cosd(pitch) * cosd(roll)));
-    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) -2*H*m*a_Gy - 2 * I_xx * alpha_x + 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
+    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) - 2 * I_xx * alpha_x + 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
     result_zmp = R * [x_zmp; y_zmp; 1];
     x_zmp_mod = result_zmp(1);
     y_zmp_mod = result_zmp(2);
 
-    x1 = -0.25;
-    x2 = 0.25;
-    y1 = -0.425;
-    y2 = 0.425;
+    x1 = -0.425;
+    x2 = 0.425;
+    y1 = -0.25;
+    y2 = 0.25;
     cdn_mod1 = R * [x1; y1; 1];
     cdn_mod2 = R * [x1; y2; 1];
     cdn_mod3 = R * [x2; y2; 1];
@@ -73,6 +74,7 @@ while true
         break; % 사용자가 종료를 원하면 루프를 종료합니다.
     end
 end
+
 
 % 마지막에 그린 모든 그래픽 요소를 함께 표시합니다.
 legend('Square', 'ZMP', 'Center of Pressure Rectangle')
