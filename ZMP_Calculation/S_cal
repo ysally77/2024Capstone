@@ -1,0 +1,42 @@
+% 매개변수 정의
+m = 141.65; % 로봇의 질량 (kg)
+g = 9.81;   % 중력 가속도 (m/s^2)
+H = 1.1;    % 로봇의 무게중심 높이 (m)
+a_Gx = 1;   % x축 방향 무게중심 가속도 (m/s^2)
+v=4.16;     % 로봇 최대 선형속도(m/s)
+w= 1;       % 로봇 최대 회전각속도(deg/s)
+I_xx = 33.07; % x축 주관성 모멘트 (kg*m^2)
+I_yy = 26.25; % y축 주관성 모멘트 (kg*m^2)
+I_zz = 17.32; % z축 주관성 모멘트 (kg*m^2)
+
+% turnover 안정성 공간 S 계산
+roll_range = -90:1:90; % 고려할 roll 각도 범위
+pitch_range = -90:1:90; % 고려할 pitch 각도 범위
+yaw_range = -90:1:90; % 고려할 yaw 각도 범위
+
+%S계산코드
+%ZMPunforce,x를 수정해야될거같음. 지금은 무조건 S가 1이 나옴.
+Sau=(1/2)*(1-(g/(a_Gx*H)*(x_zmp_mod-x_zmp_mod-H*a_Gx/g));
+Sal=(1/2)*(1+(g/(a_Gx*H)*(x_zmp_mod-x_zmp_mod+H*a_Gx/g));
+
+Swu=(1/2)*(1-(g/(v*w*H))*(y_zmp_mod-y_zmp_mod-H*v*w/g));
+Swl=(1/2)*(1-(g/(v*w*H))*(y_zmp_mod-y_zmp_mod+H*v*w/g));
+
+% Sau가 1/2보다 작으면 a_Gx를 -1(감속)으로 설정
+if Sau < 1/2
+    a_Gx = -1;
+    Sau = (1/2) * (1 - (g / (a_Gx * H) * (x_zmp_mod - x_zmp_mod - H * a_Gx / g)));
+end
+
+if Sal < 1/2
+    a_Gx = -1;
+    Sal=(1/2)*(1+(g/(a_Gx*H)*(x_zmp_mod-x_zmp_mod+H*a_Gx/g)));
+end
+
+if Swu < 1/2
+    w = 1.5;
+end
+
+if Swl < 1/2
+    w = -1;
+end
