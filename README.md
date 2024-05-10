@@ -11,7 +11,7 @@ Waypoint를 찍어 이동: WaypointMove
 
 ## ZMP_Calculation 폴더
 1. zmp  계산 -->완료
-2. S 계산 코드 진행중
+2. S 계산 코드 진행중 --> ZMPunforce항 수정하기
 
 ## Astar 폴더
 GameObject에 A* 만들고 Grid, PathRequestManager, Pathfinding 스크립트 할당
