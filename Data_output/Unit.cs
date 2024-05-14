@@ -23,7 +23,7 @@ public class Unit : MonoBehaviour
     private int currentTargetIndex = 0;
     private Vector3[] path;
 
-    public float speed = 2f;
+    public float speed = 4f;
     private int targetIndex = 0;
 
     private float lastLogTime;
