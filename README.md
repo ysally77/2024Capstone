@@ -25,10 +25,13 @@ GameObject에 A* 만들고 Grid, PathRequestManager, Pathfinding 스크립트 �
 기존의 Astar폴더의 Unit.cs코드를 수정하여 데이터를 출력
 
 pos_vel_acc.txt : 로봇이 이동하면서 얻은 데이터(위치, 속도, 가속도, 이동 각도). 필터링 필요
+
 waypoints_data.txt : A*경로에서의 waypoint의 위치정보와 그때의 시간정보(나머지 정보는 잘못된 것 같고 그 원인을 현재 추정중)
+
 pos_vel_acc.csv : pos_vel_acc.txt파일의 엑셀 버전
 
 nowheel_pos_vel_acc.txt : 바퀴가 회전하지 않을 때(그냥 움직일 때)의 데이터(위치, 속도, 가속도, 이동 각도)
+
 nowheel_waypoints-data.txt : 바퀴가 회전하지 않을 때(그냥 움직일 때)의 데이터(waypoint의 정보)
 
 # TASK(To Do List)
