@@ -7,7 +7,7 @@ waypoint의 정보 출력
 waypoints_data.txt
 
 바퀴의 물리적 특성을 이용하여 실제처럼 주행하도록 wheelCollider와 wheelMesh이용
-이 경우에는 미끄러지고 넘어지려는 모습 발생 + waypoint를 약간 벗어나 주행..영상참고
+이 경우에는 미끄러지고 넘어지려는 모습 발생 + waypoint를 약간 벗어나 주행+ waypoint는 무조건 지나려고 하는 모습..영상참고
 
 */
 
