@@ -1,7 +1,14 @@
-/*데이터 출력용으로 기존의 Astar\Unit.cs 코드 수정하여
-Time.time을 이용하여 4m/s로 생성된 A*경로 이동시
-위치(x,y,z), 속도, 가속도, x축 이동 각도, y축 이동 각도, z축 이동 각도 출력
-waypoint의 정보도 출력
+/*데이터 출력용으로 기존의 Astar\Unit.cs 코드 수정하여 
+생성된 A*경로를 4m/s로 이동시
+위치(x,y,z), 속도, 가속도, x축 이동 각도, y축 이동 각도, z축 이동 각도, 각속도 출력...0.1초 간격 
+pos_vel_acc_data.txt
+
+waypoint의 정보 출력
+waypoints_data.txt
+
+바퀴의 물리적 특성을 이용하여 실제처럼 주행하도록 wheelCollider와 wheelMesh이용
+이 경우에는 미끄러지고 넘어지려는 모습 발생 + waypoint를 약간 벗어나 주행..영상참고
+
 */
 
 using UnityEngine;
@@ -45,7 +52,7 @@ public class Unit : MonoBehaviour
             StartCoroutine("FollowPath");
 
             // 웨이포인트를 별도의 파일에 기록
-            string waypointFilePath = Application.dataPath + "/test_waypoints_data4.txt";
+            string waypointFilePath = Application.dataPath + "/waypoints_data.txt";
             using (StreamWriter writer = new StreamWriter(waypointFilePath, true))
             {
                 foreach (Vector3 waypoint in path)
@@ -63,8 +70,8 @@ public class Unit : MonoBehaviour
         float prevTime = Time.time;
         lastLogTime = Time.time;
 
-        string dataFilePath = Application.dataPath + "/test_pos_vel_acc_data4.txt"; // 파일 경로 설정
-        string waypointFilePath = Application.dataPath + "/test_waypoints_data4.txt"; // 웨이포인트 파일 경로
+        string dataFilePath = Application.dataPath + "/pos_vel_acc_data.txt"; // 파일 경로 설정
+        string waypointFilePath = Application.dataPath + "/waypoints_data.txt"; // 웨이포인트 파일 경로
 
         // 초기 속도 설정
         prevVelocity = 0f;
