@@ -87,7 +87,7 @@ end
 
 
 % 마지막에 그린 모든 그래픽 요소를 함께 표시합니다.
-legend('Square', 'ZMP', 'Center of Pressure Rectangle')
+legend('Square', 'ZMP', 'Projection Polygon')
 
 %Sau = (1/2) * (1 - (g / (a_Gx * H) * (x_zmp_mod - 0.25)))
 %Sal=(1/2)*(1+(g/(a_Gx*H)*(x_zmp_mod + 0.25)))
