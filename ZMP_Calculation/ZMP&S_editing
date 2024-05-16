@@ -7,7 +7,8 @@ while true
     roll = input('roll 값을 입력하세요: ');
     pitch = input('pitch 값을 입력하세요: ');
     yaw = input('yaw 값을 입력하세요: ');
-    
+    a_Gx = input('x방향 가속도를 입력하세요: ');
+
     t = 0.1;
     p = roll / t;
     q = pitch / t;
@@ -20,7 +21,6 @@ while true
     L = 0.85;
     W = 0.5;
     H = 1.1;
-    a_Gx = 0;
     v = 0;
     w = alpha_z;
 
