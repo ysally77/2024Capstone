@@ -42,8 +42,8 @@ public class Unit : MonoBehaviour
             SetNextTarget();
         }
 
-        waypointFilePath = Application.dataPath + "/waypoints_data.txt";
-        dataFilePath = Application.dataPath + "/pos_vel_acc_data.txt"; // 파일 경로 설정
+        waypointFilePath = Application.dataPath + "/waypoints_data1.txt";
+        dataFilePath = Application.dataPath + "/pos_vel_acc_data1.txt"; // 파일 경로 설정
         // 초기 파일 내용 삭제
         File.WriteAllText(dataFilePath, string.Empty);
         File.WriteAllText(waypointFilePath, string.Empty);
@@ -101,7 +101,12 @@ public class Unit : MonoBehaviour
             // 위치 변화량을 구하여 속도 계산
             Vector3 positionChange = transform.position - prevPosition;
             float velocity = positionChange.magnitude / timeElapsed;
+
+            // 가속도 계산
             float acceleration = (velocity - prevVelocity) / timeElapsed;
+
+            // 디버그 로그로 속도와 가속도 출력
+            Debug.Log($"Velocity: {velocity}, Acceleration: {acceleration}");
 
             prevTime = currentTime;
             prevPosition = transform.position;
