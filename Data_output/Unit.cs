@@ -32,12 +32,22 @@ public class Unit : MonoBehaviour
     private float lastLogTime;
     private float prevVelocity;
 
+    private string dataFilePath;
+    private string waypointFilePath;
+
     void Start()
     {
         if (targets.Length > 0)
         {
             SetNextTarget();
         }
+
+        waypointFilePath = Application.dataPath + "/waypoints_data.txt";
+        dataFilePath = Application.dataPath + "/pos_vel_acc_data.txt"; // 파일 경로 설정
+        // 초기 파일 내용 삭제
+        File.WriteAllText(dataFilePath, string.Empty);
+        File.WriteAllText(waypointFilePath, string.Empty);
+
     }
 
     private void SetNextTarget()
@@ -55,8 +65,8 @@ public class Unit : MonoBehaviour
             StartCoroutine("FollowPath");
 
             // 웨이포인트를 별도의 파일에 기록
-            string waypointFilePath = Application.dataPath + "/waypoints_data.txt";
-            using (StreamWriter writer = new StreamWriter(waypointFilePath, true))
+
+            using (StreamWriter writer = new StreamWriter(waypointFilePath,true)) // 파일 덮어쓰기 모드로 변경
             {
                 foreach (Vector3 waypoint in path)
                 {
@@ -73,25 +83,60 @@ public class Unit : MonoBehaviour
         float prevTime = Time.time;
         lastLogTime = Time.time;
 
-        string dataFilePath = Application.dataPath + "/pos_vel_acc_data.txt"; // 파일 경로 설정
-        string waypointFilePath = Application.dataPath + "/waypoints_data.txt"; // 웨이포인트 파일 경로
 
         // 초기 속도 설정
-        prevVelocity = 0f;
+        float prevVelocity = 0f;
 
         while (true)
         {
             float currentTime = Time.time;
-            float distance = Vector3.Distance(transform.position, currentWaypoint);
             float timeElapsed = currentTime - prevTime;
-            float velocity = distance / timeElapsed;
+
+            // 시간 차이가 매우 작으면 계산을 생략하여 매우 큰 값이 나오는 것을 방지
+            if (timeElapsed < Mathf.Epsilon)
+            {
+                timeElapsed = Mathf.Epsilon;
+            }
+
+            // 위치 변화량을 구하여 속도 계산
+            Vector3 positionChange = transform.position - prevPosition;
+            float velocity = positionChange.magnitude / timeElapsed;
             float acceleration = (velocity - prevVelocity) / timeElapsed;
 
             prevTime = currentTime;
             prevPosition = transform.position;
             prevVelocity = velocity;
 
-            if (transform.position == currentWaypoint)
+            // 차량을 목표 지점으로 이동시키고 바퀴 회전
+            MoveTowardsWaypoint(currentWaypoint);
+
+            // x, y, z 축 방향의 각도 계산
+            Vector3 directionToTarget = currentWaypoint - transform.position;
+            float angleXToTarget = Mathf.Atan2(directionToTarget.y, directionToTarget.z) * Mathf.Rad2Deg;
+            float angleYToTarget = Mathf.Atan2(directionToTarget.z, directionToTarget.x) * Mathf.Rad2Deg;
+            float angleZToTarget = Mathf.Atan2(directionToTarget.x, directionToTarget.y) * Mathf.Rad2Deg;
+
+            // 회전 속도 계산
+            float angularSpeedToTarget = Vector3.Angle(prevPosition, transform.position) / timeElapsed;
+
+            // 0.1초 간격으로 위치, 속도, 가속도, 각도 값을 텍스트 파일에 기록
+            if (currentTime - lastLogTime >= 0.1f)
+            {
+                using (StreamWriter writer = new StreamWriter(dataFilePath, true))
+                {
+                    writer.WriteLine("Time, " + currentTime +
+                                     ", Position, " + transform.position +
+                                     ", Velocity, " + velocity +
+                                     ", Acceleration, " + acceleration +
+                                     ", AngleX, " + angleXToTarget +
+                                     ", AngleY, " + angleYToTarget +
+                                     ", AngleZ, " + angleZToTarget +
+                                     ", AngularSpeed, " + angularSpeedToTarget);
+                }
+                lastLogTime = currentTime;
+            }
+
+            if (Vector3.Distance(transform.position, currentWaypoint) < 0.1f) // 임계값을 사용하여 도달 여부 체크
             {
                 // x, y, z 축 방향의 각도 계산
                 Vector3 direction = transform.position - prevPosition;
@@ -131,40 +176,11 @@ public class Unit : MonoBehaviour
                 currentWaypoint = path[targetIndex];
             }
 
-            // 차량을 목표 지점으로 이동시키고 바퀴 회전
-            MoveTowardsWaypoint(currentWaypoint, velocity);
-
-            // x, y, z 축 방향의 각도 계산
-            Vector3 directionToTarget = currentWaypoint - transform.position;
-            float angleXToTarget = Mathf.Atan2(directionToTarget.y, directionToTarget.z) * Mathf.Rad2Deg;
-            float angleYToTarget = Mathf.Atan2(directionToTarget.z, directionToTarget.x) * Mathf.Rad2Deg;
-            float angleZToTarget = Mathf.Atan2(directionToTarget.x, directionToTarget.y) * Mathf.Rad2Deg;
-
-            // 회전 속도 계산
-            float angularSpeedToTarget = Vector3.Angle(transform.position, currentWaypoint) / Time.deltaTime;
-
-            // 0.1초 간격으로 위치, 속도, 가속도, 각도 값을 텍스트 파일에 기록
-            if (currentTime - lastLogTime >= 0.1f)
-            {
-                using (StreamWriter writer = new StreamWriter(dataFilePath, true))
-                {
-                    writer.WriteLine("Time, " + currentTime +
-                                     ", Position, " + transform.position +
-                                     ", Velocity, " + velocity +
-                                     ", Acceleration, " + acceleration +
-                                     ", AngleX, " + angleXToTarget +
-                                     ", AngleY, " + angleYToTarget +
-                                     ", AngleZ, " + angleZToTarget +
-                                     ", AngularSpeed, " + angularSpeedToTarget);
-                }
-                lastLogTime = currentTime;
-            }
-
             yield return null;
         }
     }
 
-    private void MoveTowardsWaypoint(Vector3 waypoint, float velocity)
+    private void MoveTowardsWaypoint(Vector3 waypoint)
     {
         // 차량의 회전
         Vector3 directionToTarget = (waypoint - transform.position).normalized;
@@ -177,12 +193,13 @@ public class Unit : MonoBehaviour
         // 바퀴 회전
         foreach (WheelCollider wheelCollider in wheelColliders)
         {
-            wheelCollider.motorTorque = speed * 10f; // 필요에 따라 수정
+            wheelCollider.motorTorque = speed * 0.2f; // 필요에 따라 수정
         }
 
         UpdateWheelPoses();
     }
 
+   
     private void UpdateWheelPoses()
     {
         for (int i = 0; i < wheelColliders.Length; i++)
@@ -195,7 +212,7 @@ public class Unit : MonoBehaviour
             wheelMeshes[i].rotation = quat * Quaternion.Euler(0, 0, 90);
         }
     }
-
+    
     public void OnDrawGizmos()
     {
         if (path != null)
