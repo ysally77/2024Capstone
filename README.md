@@ -35,6 +35,8 @@ nowheel_pos_vel_acc.txt : 바퀴가 회전하지 않을 때(그냥 움직일 때
 
 nowheel_waypoints-data.txt : 바퀴가 회전하지 않을 때(그냥 움직일 때)의 데이터(waypoint의 정보)
 
+wheelCollider.motorTorque = speed * 5f;에서의 숫자값에 따라 튀는 정도가 달라지는 것 같다.
+
 # TASK(To Do List)
 1. A* 완성--> 데이터 출력(위치, 속도, 가속도, 회전속도 등)-->출력된 데이터 필터링=>속도값 튀는 것 수정
 2. URDF 파일 import 로봇 구동
