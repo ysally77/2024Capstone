@@ -21,7 +21,7 @@ while true
     L = 0.85;
     W = 0.5;
     H = 1.1;
-    v = 0;
+    v = 2;
     w = alpha_z;
 
     I_xx = 33.07;
@@ -45,7 +45,8 @@ while true
     ];
 
     x_zmp = (-2 * I_yy * alpha_y - 2 * (I_xx - I_zz) * p * r + 2 * m * g * H * sind(pitch) + 2 * m * H * a_Gx) / (2 * m * (-g * cosd(pitch) * cosd(roll)));
-    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) - 2 * I_xx * alpha_x + 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
+    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) - 2 * I_xx * alpha_x ...
+        + 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
     result_zmp = R * [x_zmp; y_zmp; 1];
     x_zmp_mod = result_zmp(1);
     y_zmp_mod = result_zmp(2);
