@@ -11,7 +11,7 @@ Waypoint를 찍어 이동: WaypointMove
 
 ## ZMP_Calculation 폴더
 1. zmp  계산 -->완료
-2. S 계산 코드 진행중 --> X, Y의 upper, low 항을 변수로 변형하면 완료
+2. S 계산 코드 --> 완료
 3. 계산된 S 값을 이용하여 로봇의 속도, 가속도를 줄이는 등의 알고리즘 추가 필요
 
 ## Astar 폴더
