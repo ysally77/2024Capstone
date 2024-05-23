@@ -9,9 +9,9 @@ while true
     yaw = input('yaw 값을 입력하세요: ');
     
     t = 0.1;
-    p = roll / t;
-    q = pitch / t;
-    r = yaw / t;
+    p = (roll / t)*pi/180;
+    q = (pitch / t)*pi/180;
+    r = (yaw / t)*pi/180;
     alpha_x = p / t;
     alpha_y = q / t;
     alpha_z = r / t;
@@ -20,9 +20,15 @@ while true
     L = 0.85;
     W = 0.5;
     H = 1.1;
-    a_Gx = 3;
-    v = 4.16;
-    w = 1;
+    a_Gx = 2;
+    v = 2;
+    
+    RR=L/(20*(pi/180));
+    if r <0
+    a_Gy=-v^2/RR;
+    else
+    a_Gy=v^2/RR;
+    end
 
     I_xx = 33.07;
     I_yy = 26.25;
@@ -30,22 +36,24 @@ while true
 
     I = [I_xx 0 0; 0 I_yy 0; 0 0 I_zz];
 
-    R = [
+  R = [
         1 0 0;
-        0 cosd(roll) sind(roll);
-        0 -sind(roll) cosd(roll)
+        0 cosd(roll) -sind(roll);
+        0 sind(roll) cosd(roll)
     ] * [
-        cosd(pitch) 0 -sind(pitch);
+        cosd(pitch) 0 sind(pitch);
         0 1 0;
-        sind(pitch) 0 cosd(pitch)
+        -sind(pitch) 0 cosd(pitch)
     ] * [
-        cosd(yaw) sind(yaw) 0;
-        -sind(yaw) cosd(yaw) 0;
+        cosd(yaw) -sind(yaw) 0;
+        sind(yaw) cosd(yaw) 0;
         0 0 1
     ];
 
+
+
     x_zmp = (-2 * I_yy * alpha_y - 2 * (I_xx - I_zz) * p * r + 2 * m * g * H * sind(pitch) + 2 * m * H * a_Gx) / (2 * m * (-g * cosd(pitch) * cosd(roll)));
-    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) - 2 * I_xx * alpha_x + 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
+    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) -m*a_Gy*2*H- 2 * I_xx * alpha_x + 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
     result_zmp = R * [x_zmp; y_zmp; 1];
     x_zmp_mod = result_zmp(1);
     y_zmp_mod = result_zmp(2);
