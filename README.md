@@ -25,17 +25,18 @@ GameObject에 A* 만들고 Grid, PathRequestManager, Pathfinding 스크립트 �
 ## Data-output 폴더
 기존의 Astar폴더의 Unit.cs코드를 수정하여 데이터를 출력
 
-pos_vel_acc.txt : 로봇이 이동하면서 얻은 데이터(위치, 속도, 가속도, 이동 각도). 필터링 필요
+pos_vel_acc_data3.txt : 로봇이 이동하면서 얻은 데이터(위치, 속도, 가속도, 이동 각도). 필터링 필요
 
-waypoints_data.txt : A*경로에서의 waypoint의 위치정보와 그때의 시간정보(나머지 정보는 잘못된 것 같고 그 원인을 현재 추정중)
+waypoints_data3.txt : A*경로에서의 waypoint의 위치정보와 그때의 시간정보)
 
-pos_vel_acc.csv : pos_vel_acc.txt파일의 엑셀 버전
+
 
 nowheel_pos_vel_acc.txt : 바퀴가 회전하지 않을 때(그냥 움직일 때)의 데이터(위치, 속도, 가속도, 이동 각도)
 
 nowheel_waypoints-data.txt : 바퀴가 회전하지 않을 때(그냥 움직일 때)의 데이터(waypoint의 정보)
 
-wheelCollider.motorTorque = speed * 5f;에서의 숫자값에 따라 튀는 정도가 달라지는 것 같다.
+
+a*의 그리드 크기를 100 * 100->60 * 60(크기는 0.1)으로도 실행. 다만 A *의 중심은 무조건 0,0,0이어야 제대로 작동. 
 
 # TASK(To Do List)
 1. A* 완성--> 데이터 출력(위치, 속도, 가속도, 회전속도 등)-->출력된 데이터 필터링=>속도값, 가속도값 튀는 것 수정
