@@ -24,6 +24,13 @@ while true
     v = 2;
     w = alpha_z;
 
+    RR=L/(20*(pi/180));
+    if r <0
+    a_Gy=-v^2/RR;
+    else
+    a_Gy=v^2/RR;
+    end
+
     I_xx = 33.07;
     I_yy = 26.25;
     I_zz = 17.32;
@@ -32,20 +39,20 @@ while true
 
     R = [
         1 0 0;
-        0 cosd(roll) sind(roll);
-        0 -sind(roll) cosd(roll)
+        0 cosd(roll) -sind(roll);
+        0 sind(roll) cosd(roll)
     ] * [
-        cosd(pitch) 0 -sind(pitch);
+        cosd(pitch) 0 sind(pitch);
         0 1 0;
-        sind(pitch) 0 cosd(pitch)
+        -sind(pitch) 0 cosd(pitch)
     ] * [
-        cosd(yaw) sind(yaw) 0;
-        -sind(yaw) cosd(yaw) 0;
+        cosd(yaw) -sind(yaw) 0;
+        sind(yaw) cosd(yaw) 0;
         0 0 1
     ];
 
     x_zmp = (-2 * I_yy * alpha_y - 2 * (I_xx - I_zz) * p * r + 2 * m * g * H * sind(pitch) + 2 * m * H * a_Gx) / (2 * m * (-g * cosd(pitch) * cosd(roll)));
-    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) - 2 * I_xx * alpha_x ...
+    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) -m*a_Gy*2*H - 2 * I_xx * alpha_x ...
         + 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
     result_zmp = R * [x_zmp; y_zmp; 1];
     x_zmp_mod = result_zmp(1);
