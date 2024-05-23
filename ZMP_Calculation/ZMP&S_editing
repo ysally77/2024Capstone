@@ -60,10 +60,20 @@ while true
     cdn_mod3 = R * [x2; y2; 1];
     cdn_mod4 = R * [x2; y1; 1];
 
-    Sau = (1/2) * (1 - (g / (a_Gx * H) * (x_zmp_mod - 0.25)))
-    Sal=(1/2)*(1+(g/(a_Gx*H)*(x_zmp_mod + 0.25)))
-    Swu=(1/2)*(1-(g/(v*w*H))*(y_zmp_mod - 0.45))
-    Swl=(1/2)*(1+(g/(v*w*H))*(y_zmp_mod + 0.45))
+     % 좌표 배열
+    x_values = [cdn_mod1(1), cdn_mod2(1), cdn_mod3(1), cdn_mod4(1)];
+    y_values = [cdn_mod1(2), cdn_mod2(2), cdn_mod3(2), cdn_mod4(2)];
+
+    % 최대값과 최소값 계산
+    max_x = max(x_values);
+    min_x = min(x_values);
+    max_y = max(y_values);
+    min_y = min(y_values);
+
+    Sau = (1/2) * (1 - (g / (a_Gx * H) * (x_zmp_mod - max_y)))
+    Sal=(1/2)*(1+(g/(a_Gx*H)*(x_zmp_mod - min_y)))
+    Swu=(1/2)*(1-(g/(v*w*H))*(y_zmp_mod - max_x))
+    Swl=(1/2)*(1+(g/(v*w*H))*(y_zmp_mod - min_x))
 
     hold on
     plot([x1, x1, x2, x2, x1], [y1, y2, y2, y1, y1], 'b-')
