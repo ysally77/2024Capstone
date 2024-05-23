@@ -1,0 +1,16 @@
+Waypoint: (-2.50, 0.00, -36.50)
+Waypoint: (-1.50, 0.00, -15.50)
+Waypoint: (-1.50, 0.00, -14.50)
+Waypoint: (-0.50, 0.00, -13.50)
+Waypoint: (-0.50, 0.00, -12.50)
+Waypoint: (0.50, 0.00, -11.50)
+Waypoint: (10.50, 0.00, -0.50)
+Waypoint: (35.50, 0.00, 0.50)
+Waypoint Time, 1.641635, Position, (-2.54, 0.00, -36.54), Velocity, 0.9965862, Acceleration, -43.06072, AngleX, -1.474959, AngleY, 44.8604, AngleZ, 91.46779, AngularSpeed, 1.027921
+Waypoint Time, 4.93498, Position, (-1.50, 0.00, -15.59), Velocity, 4.834061, Acceleration, -26.81794, AngleX, -0.4178571, AngleY, 87.63555, AngleZ, 100.0167, AngularSpeed, 0.9487278
+Waypoint Time, 5.06022, Position, (-1.49, 0.01, -14.56), Velocity, 7.377519, Acceleration, -2.804518, AngleX, -0.03468905, AngleY, 89.68363, AngleZ, 96.25726, AngularSpeed, 2.661444
+Waypoint Time, 5.284694, Position, (-0.56, 0.01, -13.43), Velocity, 0.7114729, Acceleration, -56.96513, AngleX, -1.010461, AngleY, 38.43439, AngleZ, 90.8019, AngularSpeed, 2.289973
+Waypoint Time, 5.402372, Position, (-0.45, 0.01, -12.58), Velocity, 2.274305, Acceleration, -43.64211, AngleX, -0.4240688, AngleY, 85.18192, AngleZ, 95.01828, AngularSpeed, 0.4845664
+Waypoint Time, 5.597886, Position, (0.42, 0.00, -11.53), Velocity, 1.414158, Acceleration, -57.71501, AngleX, -1.244631, AngleY, 37.41022, AngleZ, 90.95201, AngularSpeed, 5.688951
+Waypoint Time, 7.452146, Position, (10.43, 0.01, -0.57), Velocity, 3.861197, Acceleration, -46.66074, AngleX, -0.701747, AngleY, 47.28292, AngleZ, 90.76001, AngularSpeed, 16.70467
+Waypoint Time, 10.40648, Position, (35.41, 0.01, 0.50), Velocity, 5.562882, Acceleration, -38.58277, AngleX, -149.5353, AngleY, -0.7678424, AngleZ, 90.45168, AngularSpeed, 0.2797645
