@@ -13,6 +13,7 @@ Waypoint를 찍어 이동: WaypointMove
 1. zmp  계산 -->완료
 2. S 계산 코드 --> 완료
 3. 계산된 S 값을 이용하여 로봇의 속도, 가속도를 줄이는 등의 알고리즘 추가 필요
+4. 완성된 ZMP&S 코드를 Unity에서 작동하도록 변환 필요
 
 ## Astar 폴더
 GameObject에 A* 만들고 Grid, PathRequestManager, Pathfinding 스크립트 할당
