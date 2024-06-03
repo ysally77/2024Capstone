@@ -21,7 +21,7 @@ while true
     L = 0.85;
     W = 0.5;
     H = 1.1;
-    v = 0;
+    v = 2;
     w = alpha_z;
     
     roll_terrain=0;
@@ -42,18 +42,21 @@ while true
 
     I = [I_xx 0 0; 0 I_yy 0; 0 0 I_zz];
 
-    R = [
-        1 0 0;
-        0 cosd(roll) -sind(roll);
-        0 sind(roll) cosd(roll)
+    R =[
+        cosd(yaw) -sind(yaw) 0 0;
+        sind(yaw) cosd(yaw) 0 0;
+        0 0 1 0;
+        0 0 0 1
+    ]* [
+        cosd(pitch) 0 -sind(pitch) 0;
+        0 1 0 0;
+        sind(pitch) 0 cosd(pitch) 0;
+        0 0 0 1
     ] * [
-        cosd(pitch) 0 sind(pitch);
-        0 1 0;
-        -sind(pitch) 0 cosd(pitch)
-    ] * [
-        cosd(yaw) -sind(yaw) 0;
-        sind(yaw) cosd(yaw) 0;
-        0 0 1
+        1 0 0 0;
+        0 cosd(roll) -sind(roll) 0;
+        0 sind(roll) cosd(roll) 0;
+        0 0 0 1
     ];
 
     %x_zmp = (-2 * I_yy * alpha_y - 2 * (I_xx - I_zz) * p * r + 2 * m * g * H * sind(pitch) + 2 * m * H * a_Gx) / (2 * m * (-g * cosd(pitch) * cosd(roll)));
@@ -63,7 +66,7 @@ while true
     
     y_zmp=(m*g*cos(pitch)*sin(roll)*(T*abs(tand(roll-roll_terrain))+2*H)-m*a_Gy*(T*abs(tand(roll-roll_terrain))+2*H)-2*I_xx*alpha_x+2*(I_yy-I_zz)*q*r)/(2*m*(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain)-a_Gy*tand(roll-roll_terrain)));
     
-    result_zmp = R * [x_zmp; y_zmp; 1];
+    result_zmp = R * [x_zmp; y_zmp; 1; 1];
     x_zmp_mod = result_zmp(1);
     y_zmp_mod = result_zmp(2);
 
@@ -71,10 +74,10 @@ while true
     x2 = 0.425;
     y1 = -0.25;
     y2 = 0.25;
-    cdn_mod1 = R * [x1; y1; 1];
-    cdn_mod2 = R * [x1; y2; 1];
-    cdn_mod3 = R * [x2; y2; 1];
-    cdn_mod4 = R * [x2; y1; 1];
+    cdn_mod1 = R * [x1; y1; 1; 1];
+    cdn_mod2 = R * [x1; y2; 1; 1];
+    cdn_mod3 = R * [x2; y2; 1; 1];
+    cdn_mod4 = R * [x2; y1; 1; 1];
 
      % 좌표 배열
     x_values = [cdn_mod1(1), cdn_mod2(1), cdn_mod3(1), cdn_mod4(1)];
