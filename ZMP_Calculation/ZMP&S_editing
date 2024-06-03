@@ -1,6 +1,5 @@
 clear
 clc
-
 figure_handle = figure; % 새로운 그림 요소를 만듭니다.
 
 while true
@@ -28,12 +27,12 @@ while true
     T=0.8;
 
     RR=L/(20*(pi/180));
-    if r <0
-    a_Gy=-v^2/RR;
-    elseif r==0
-    a_Gy=0;
+    if r < 0
+        a_Gy = -v^2/RR;
+    elseif r == 0
+        a_Gy = 0;
     else
-    a_Gy=v^2/RR;
+        a_Gy = v^2/RR;
     end
 
     I_xx = 10.0475;
@@ -42,46 +41,60 @@ while true
 
     I = [I_xx 0 0; 0 I_yy 0; 0 0 I_zz];
 
-    R =[
-        cosd(yaw) -sind(yaw) 0 0;
-        sind(yaw) cosd(yaw) 0 0;
-        0 0 1 0;
-        0 0 0 1
-    ]* [
-        cosd(pitch) 0 -sind(pitch) 0;
-        0 1 0 0;
-        sind(pitch) 0 cosd(pitch) 0;
-        0 0 0 1
-    ] * [
-        1 0 0 0;
-        0 cosd(roll) -sind(roll) 0;
-        0 sind(roll) cosd(roll) 0;
-        0 0 0 1
+    R_roll = [
+        1 0 0;
+        0 cosd(roll) -sind(roll);
+        0 sind(roll) cosd(roll)
     ];
 
-    %x_zmp = (-2 * I_yy * alpha_y - 2 * (I_xx - I_zz) * p * r + 2 * m * g * H * sind(pitch) + 2 * m * H * a_Gx) / (2 * m * (-g * cosd(pitch) * cosd(roll)));
-    %y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) -m*a_Gy*2*H - 2 * I_xx * alpha_x ...+ 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
-    x_zmp=(1/(2*m*(-g*cosd(pitch)*cosd(roll))))*(-2*I_yy*alpha_y-2*(I_xx-I_zz)*p*r+2*m*g*H*sind(pitch)+m*g*T*abs(tand(roll-roll_terrain))*sind(pitch)+2*m*H*a_Gx+m*T*a_Gx*abs(tand(roll-roll_terrain))+ ...
-    ((g*sind(pitch)+a_Gx)*(m*T*abs(tand(roll-roll_terrain))*(-g*cosd(pitch)*sind(roll)+a_Gy)+2*(I_xx*alpha_x-(I_yy-I_zz)*q*r)-m*g*H*cosd(pitch)*sind(roll)+m*H*a_Gy))*tand(roll-roll_terrain))/(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain)-a_Gy*(tand(roll-roll_terrain)));
-    
-    y_zmp=(m*g*cos(pitch)*sin(roll)*(T*abs(tand(roll-roll_terrain))+2*H)-m*a_Gy*(T*abs(tand(roll-roll_terrain))+2*H)-2*I_xx*alpha_x+2*(I_yy-I_zz)*q*r)/(2*m*(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain)-a_Gy*tand(roll-roll_terrain)));
-    
-    result_zmp = R * [x_zmp; y_zmp; 1; 1];
+    R_pitch = [
+        cosd(pitch) 0 -sind(pitch);
+        0 1 0;
+        sind(pitch) 0 cosd(pitch)
+    ];
+
+    R_yaw = [
+        cosd(yaw) -sind(yaw) 0;
+        sind(yaw) cosd(yaw) 0;
+        0 0 1
+    ];
+
+    R = R_yaw * R_pitch * R_roll;
+
+    % 회전 중심을 설정합니다.
+    rotation_center = [0; 0; 0];
+
+    % x_zmp와 y_zmp 계산
+    x_zmp = (1/(2*m*(-g*cosd(pitch)*cosd(roll)))) * (-2*I_yy*alpha_y - 2*(I_xx-I_zz)*p*r + 2*m*g*H*sind(pitch) + m*g*T*abs(tand(roll-roll_terrain))*sind(pitch) + 2*m*H*a_Gx + m*T*a_Gx*abs(tand(roll-roll_terrain)) + ...
+        ((g*sind(pitch)+a_Gx)*(m*T*abs(tand(roll-roll_terrain))*(-g*cosd(pitch)*sind(roll)+a_Gy) + 2*(I_xx*alpha_x-(I_yy-I_zz)*q*r) - m*g*H*cosd(pitch)*sind(roll) + m*H*a_Gy))*tand(roll-roll_terrain)) / ...
+        (g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain) - a_Gy*(tand(roll-roll_terrain)));
+
+    y_zmp = (m*g*cos(pitch)*sin(roll)*(T*abs(tand(roll-roll_terrain))+2*H) - m*a_Gy*(T*abs(tand(roll-roll_terrain))+2*H) - 2*I_xx*alpha_x + 2*(I_yy-I_zz)*q*r) / ...
+        (2*m*(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain) - a_Gy*tand(roll-roll_terrain)));
+
+    % 좌표 변환
+    zmp = [x_zmp; y_zmp; 0];
+    zmp_centered = zmp - rotation_center;
+    result_zmp_centered = R * zmp_centered;
+    result_zmp = result_zmp_centered + rotation_center;
     x_zmp_mod = result_zmp(1);
     y_zmp_mod = result_zmp(2);
 
-    x1 = -0.425;
-    x2 = 0.425;
-    y1 = -0.25;
-    y2 = 0.25;
-    cdn_mod1 = R * [x1; y1; 1; 1];
-    cdn_mod2 = R * [x1; y2; 1; 1];
-    cdn_mod3 = R * [x2; y2; 1; 1];
-    cdn_mod4 = R * [x2; y1; 1; 1];
+    % 모서리 좌표 설정
+    corners = [
+        -L/2, -W/2, 0;
+        -L/2, W/2, 0;
+        L/2, W/2, 0;
+        L/2, -W/2, 0
+    ]';
 
-     % 좌표 배열
-    x_values = [cdn_mod1(1), cdn_mod2(1), cdn_mod3(1), cdn_mod4(1)];
-    y_values = [cdn_mod1(2), cdn_mod2(2), cdn_mod3(2), cdn_mod4(2)];
+    % 좌표 변환
+    corners_centered = corners - rotation_center;
+    cdn_mod = R * corners_centered + rotation_center;
+
+    % 좌표 배열
+    x_values = cdn_mod(1, :);
+    y_values = cdn_mod(2, :);
 
     % 최대값과 최소값 계산
     max_x = max(x_values);
@@ -90,18 +103,15 @@ while true
     min_y = min(y_values);
 
     Sau = (1/2) * (1 - (g / (4 * H) * (x_zmp_mod - max_x)))
-    Sal=(1/2)*(1+(g/(4*H)*(x_zmp_mod - min_x)))
-    Swu=(1/2)*(1-(g/(4*H))*(y_zmp_mod - max_y))
-    Swl=(1/2)*(1+(g/(4*H))*(y_zmp_mod - min_y))
+    Sal = (1/2) * (1 + (g / (4 * H) * (x_zmp_mod - min_x)))
+    Swu = (1/2) * (1 - (g / (4 * H)) * (y_zmp_mod - max_y))
+    Swl = (1/2) * (1 + (g / (4 * H)) * (y_zmp_mod - min_y))
 
     hold on
-    plot([x1, x1, x2, x2, x1], [y1, y2, y2, y1, y1], 'b-')
+    plot([corners(1, :), corners(1, 1)], [corners(2, :), corners(2, 1)], 'b-')
     plot(x_zmp_mod, y_zmp_mod, '-o')
-    %plot(Sau, Sal, Swu, Swl, 'b*')
-    text(x_zmp_mod , y_zmp_mod , 'x_zmp, y_zmp')
-    plot([cdn_mod1(1), cdn_mod2(1), cdn_mod3(1), cdn_mod4(1), cdn_mod1(1)], ...
-        [cdn_mod1(2), cdn_mod2(2), cdn_mod3(2), cdn_mod4(2), cdn_mod1(2)], ...
-        'r-')
+    text(x_zmp_mod, y_zmp_mod, 'x_zmp, y_zmp')
+    plot([cdn_mod(1, :), cdn_mod(1, 1)], [cdn_mod(2, :), cdn_mod(2, 1)], 'r-')
     hold off
     
     xlabel('x(m)');
@@ -115,11 +125,5 @@ while true
     end
 end
 
-
 % 마지막에 그린 모든 그래픽 요소를 함께 표시합니다.
 legend('Initial position', 'ZMP', 'Projection Polygon')
-
-%Sau = (1/2) * (1 - (g / (a_Gx * H) * (x_zmp_mod - 0.25)))
-%Sal=(1/2)*(1+(g/(a_Gx*H)*(x_zmp_mod + 0.25)))
-%Swu=(1/2)*(1-(g/(v*w*H))*(y_zmp_mod - 0.45))
-%Swl=(1/2)*(1-(g/(v*w*H))*(y_zmp_mod + 0.45))
