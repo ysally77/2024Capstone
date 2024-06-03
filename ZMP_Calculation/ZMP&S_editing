@@ -16,24 +16,29 @@ while true
     alpha_x = p / t;
     alpha_y = q / t;
     alpha_z = r / t;
-    m = 50;
+    m = 70;
     g = 9.81;
     L = 0.85;
     W = 0.5;
     H = 1.1;
-    v = 2;
+    v = 0;
     w = alpha_z;
+    
+    roll_terrain=0;
+    T=0.8;
 
     RR=L/(20*(pi/180));
     if r <0
     a_Gy=-v^2/RR;
+    elseif r==0
+    a_Gy=0;
     else
     a_Gy=v^2/RR;
     end
 
-    I_xx = 33.07;
-    I_yy = 26.25;
-    I_zz = 17.32;
+    I_xx = 10.0475;
+    I_yy = 5.67291;
+    I_zz = 7.29166;
 
     I = [I_xx 0 0; 0 I_yy 0; 0 0 I_zz];
 
@@ -51,9 +56,13 @@ while true
         0 0 1
     ];
 
-    x_zmp = (-2 * I_yy * alpha_y - 2 * (I_xx - I_zz) * p * r + 2 * m * g * H * sind(pitch) + 2 * m * H * a_Gx) / (2 * m * (-g * cosd(pitch) * cosd(roll)));
-    y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) -m*a_Gy*2*H - 2 * I_xx * alpha_x ...
-        + 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
+    %x_zmp = (-2 * I_yy * alpha_y - 2 * (I_xx - I_zz) * p * r + 2 * m * g * H * sind(pitch) + 2 * m * H * a_Gx) / (2 * m * (-g * cosd(pitch) * cosd(roll)));
+    %y_zmp = (2 * H * m * g * cosd(pitch) * sind(roll) -m*a_Gy*2*H - 2 * I_xx * alpha_x ...+ 2 * (I_yy - I_zz) * q * r) / (2 * m * (g * cosd(pitch)));
+    x_zmp=(1/(2*m*(-g*cosd(pitch)*cosd(roll))))*(-2*I_yy*alpha_y-2*(I_xx-I_zz)*p*r+2*m*g*H*sind(pitch)+m*g*T*abs(tand(roll-roll_terrain))*sind(pitch)+2*m*H*a_Gx+m*T*a_Gx*abs(tand(roll-roll_terrain))+ ...
+    ((g*sind(pitch)+a_Gx)*(m*T*abs(tand(roll-roll_terrain))*(-g*cosd(pitch)*sind(roll)+a_Gy)+2*(I_xx*alpha_x-(I_yy-I_zz)*q*r)-m*g*H*cosd(pitch)*sind(roll)+m*H*a_Gy))*tand(roll-roll_terrain))/(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain)-a_Gy*(tand(roll-roll_terrain)));
+    
+    y_zmp=(m*g*cos(pitch)*sin(roll)*(T*abs(tand(roll-roll_terrain))+2*H)-m*a_Gy*(T*abs(tand(roll-roll_terrain))+2*H)-2*I_xx*alpha_x+2*(I_yy-I_zz)*q*r)/(2*m*(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain)-a_Gy*tand(roll-roll_terrain)));
+    
     result_zmp = R * [x_zmp; y_zmp; 1];
     x_zmp_mod = result_zmp(1);
     y_zmp_mod = result_zmp(2);
@@ -77,16 +86,16 @@ while true
     max_y = max(y_values);
     min_y = min(y_values);
 
-    Sau = (1/2) * (1 - (g / (a_Gx * H) * (x_zmp_mod - max_y)))
-    Sal=(1/2)*(1+(g/(a_Gx*H)*(x_zmp_mod - min_y)))
-    Swu=(1/2)*(1-(g/(v*w*H))*(y_zmp_mod - max_x))
-    Swl=(1/2)*(1+(g/(v*w*H))*(y_zmp_mod - min_x))
+    Sau = (1/2) * (1 - (g / (4 * H) * (x_zmp_mod - max_x)))
+    Sal=(1/2)*(1+(g/(4*H)*(x_zmp_mod - min_x)))
+    Swu=(1/2)*(1-(g/(4*H))*(y_zmp_mod - max_y))
+    Swl=(1/2)*(1+(g/(4*H))*(y_zmp_mod - min_y))
 
     hold on
     plot([x1, x1, x2, x2, x1], [y1, y2, y2, y1, y1], 'b-')
     plot(x_zmp_mod, y_zmp_mod, '-o')
     %plot(Sau, Sal, Swu, Swl, 'b*')
-    text(x_zmp_mod + 0.5, y_zmp_mod + 2, 'x_zmp, y_zmp')
+    text(x_zmp_mod , y_zmp_mod , 'x_zmp, y_zmp')
     plot([cdn_mod1(1), cdn_mod2(1), cdn_mod3(1), cdn_mod4(1), cdn_mod1(1)], ...
         [cdn_mod1(2), cdn_mod2(2), cdn_mod3(2), cdn_mod4(2), cdn_mod1(2)], ...
         'r-')
