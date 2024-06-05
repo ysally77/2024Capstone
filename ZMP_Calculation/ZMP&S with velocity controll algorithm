@@ -9,6 +9,7 @@ while true
     yaw = input('yaw 값을 입력하세요: ');
     a_Gx = input('x방향 가속도를 입력하세요: ');
 
+    % 초기 변수 설정
     t = 0.1;
     p = roll / t;
     q = pitch / t;
@@ -21,19 +22,19 @@ while true
     L = 0.85;
     W = 0.5;
     H = 1.1;
-    v = 2;
+    v = 2; % 초기 속도
     w = alpha_z;
     
-    roll_terrain=0;
-    T=0.8;
+    roll_terrain = 0;
+    T = 0.8;
 
-    RR=L/(20*(pi/180));
+    RR = L / (20 * (pi / 180));
     if r < 0
-        a_Gy = -v^2/RR;
+        a_Gy = -v^2 / RR;
     elseif r == 0
         a_Gy = 0;
     else
-        a_Gy = v^2/RR;
+        a_Gy = v^2 / RR;
     end
 
     I_xx = 10.0475;
@@ -49,9 +50,9 @@ while true
     ];
 
     R_pitch = [
-        cosd(pitch) 0 -sind(pitch);
+        cosd(pitch) 0 sind(pitch);
         0 1 0;
-        sind(pitch) 0 cosd(pitch)
+        -sind(pitch) 0 cosd(pitch)
     ];
 
     R_yaw = [
@@ -103,10 +104,44 @@ while true
     max_y = max(y_values);
     min_y = min(y_values);
 
-    Sau = (1/2) * (1 - (g / (4 * H) * (x_zmp_mod - max_x)))
-    Sal = (1/2) * (1 + (g / (4 * H) * (x_zmp_mod - min_x)))
-    Swu = (1/2) * (1 - (g / (4 * H)) * (y_zmp_mod - max_y))
-    Swl = (1/2) * (1 + (g / (4 * H)) * (y_zmp_mod - min_y))
+    % 안정성 한계 계산
+    Sau = (1/2) * (1 - (g / (4 * H) * (x_zmp_mod - max_x)));
+    Sal = (1/2) * (1 + (g / (4 * H) * (x_zmp_mod - min_x)));
+    Swu = (1/2) * (1 - (g / (4 * H)) * (y_zmp_mod - max_y));
+    Swl = (1/2) * (1 + (g / (4 * H)) * (y_zmp_mod - min_y));
+
+    % Sau, Sal, Swu, Swl 값이 0.5보다 작거나 큰 경우 v를 조정하고 다시 계산
+    while Sau > 0.5 || Sal > 0.5 || Swu > 0.5 || Swl > 0.5
+        if Sau < 0.5 || Sal < 0.5 || Swu < 0.5 || Swl < 0.5
+            v = 1;
+        else
+            v = 4.16; % 최대속도 15km/h으로 설정, 다른값으로 바꿔도됌
+        end
+
+        a_Gy = v^2 / RR;
+
+        % ZMP 값 다시 계산
+        x_zmp = (1/(2*m*(-g*cosd(pitch)*cosd(roll)))) * (-2*I_yy*alpha_y - 2*(I_xx-I_zz)*p*r + 2*m*g*H*sind(pitch) + m*g*T*abs(tand(roll-roll_terrain))*sind(pitch) + 2*m*H*a_Gx + m*T*a_Gx*abs(tand(roll-roll_terrain)) + ...
+            ((g*sind(pitch)+a_Gx)*(m*T*abs(tand(roll-roll_terrain))*(-g*cosd(pitch)*sind(roll)+a_Gy) + 2*(I_xx*alpha_x-(I_yy-I_zz)*q*r) - m*g*H*cosd(pitch)*sind(roll) + m*H*a_Gy))*tand(roll-roll_terrain)) / ...
+            (g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain) - a_Gy*(tand(roll-roll_terrain)));
+
+        y_zmp = (m*g*cos(pitch)*sin(roll)*(T*abs(tand(roll-roll_terrain))+2*H) - m*a_Gy*(T*abs(tand(roll-roll_terrain))+2*H) - 2*I_xx*alpha_x + 2*(I_yy-I_zz)*q*r) / ...
+            (2*m*(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain) - a_Gy*tand(roll-roll_terrain)));
+
+        % 좌표 변환 다시 수행
+        zmp = [x_zmp; y_zmp; 0];
+        zmp_centered = zmp - rotation_center;
+        result_zmp_centered = R * zmp_centered;
+        result_zmp = result_zmp_centered + rotation_center;
+        x_zmp_mod = result_zmp(1);
+        y_zmp_mod = result_zmp(2);
+
+        % 안정성 한계 다시 계산
+        Sau = (1/2) * (1 - (g / (4 * H) * (x_zmp_mod - max_x)));
+        Sal = (1/2) * (1 + (g / (4 * H) * (x_zmp_mod - min_x)));
+        Swu = (1/2) * (1 - (g / (4 * H)) * (y_zmp_mod - max_y));
+        Swl = (1/2) * (1 + (g / (4 * H)) * (y_zmp_mod - min_y));
+    end
 
     hold on
     plot([corners(1, :), corners(1, 1)], [corners(2, :), corners(2, 1)], 'b-')
@@ -118,12 +153,7 @@ while true
     xlabel('x(m)');
     ylabel('y(m)');
 
-    % 사용자에게 계속할 것인지 물어봅니다.
-    prompt = '그래프를 계속해서 그리시겠습니까? (Y/N): ';
-    answer = input(prompt, 's');
-    if ~strcmpi(answer, 'y')
-        break; % 사용자가 종료를 원하면 루프를 종료합니다.
-    end
+    
 end
 
 % 마지막에 그린 모든 그래픽 요소를 함께 표시합니다.
