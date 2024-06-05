@@ -3,27 +3,38 @@ clc
 
 figure_handle = figure; % 새로운 그림 요소를 만듭니다.
 
-while true
+% 로봇의 초기 위치 및 속도 설정
+x = 0; % 초기 x 위치
+y = 0; % 초기 y 위치
+theta = 0; % 초기 방향 (라디안 단위)
+v = 2; % 초기 속도 (m/s)
+v_increment = 0.5; % 속도 증가/감소 단위
+
+% 시간 설정
+dt = 0.1; % 시간 간격 (초)
+total_time = 10; % 전체 주행 시간 (초)
+time_steps = total_time / dt;
+
+% 로봇의 크기 설정
+L = 0.85; % 로봇의 길이 (m)
+W = 0.5; % 로봇의 너비 (m)
+H = 1.1; % 로봇의 높이 (m)
+
+for t = 1:time_steps
     roll = input('roll 값을 입력하세요: ');
     pitch = input('pitch 값을 입력하세요: ');
     yaw = input('yaw 값을 입력하세요: ');
     a_Gx = input('x방향 가속도를 입력하세요: ');
 
-    % 초기 변수 설정
-    t = 0.1;
-    p = roll / t;
-    q = pitch / t;
-    r = yaw / t;
-    alpha_x = p / t;
-    alpha_y = q / t;
-    alpha_z = r / t;
-    m = 70;
-    g = 9.81;
-    L = 0.85;
-    W = 0.5;
-    H = 1.1;
-    v = 2; % 초기 속도
-    w = alpha_z;
+    % 가속도 및 각가속도 계산
+    p = roll / dt;
+    q = pitch / dt;
+    r = yaw / dt;
+    alpha_x = p / dt;
+    alpha_y = q / dt;
+    alpha_z = r / dt;
+    m = 70; % 로봇의 질량 (kg)
+    g = 9.81; % 중력 가속도 (m/s^2)
     
     roll_terrain = 0;
     T = 0.8;
@@ -110,39 +121,20 @@ while true
     Swu = (1/2) * (1 - (g / (4 * H)) * (y_zmp_mod - max_y));
     Swl = (1/2) * (1 + (g / (4 * H)) * (y_zmp_mod - min_y));
 
-    % Sau, Sal, Swu, Swl 값이 0.5보다 작거나 큰 경우 v를 조정하고 다시 계산
-    while Sau > 0.5 || Sal > 0.5 || Swu > 0.5 || Swl > 0.5
-        if Sau < 0.5 || Sal < 0.5 || Swu < 0.5 || Swl < 0.5
-            v = 1;
-        else
-            v = 4.16; % 최대속도 15km/h으로 설정, 다른값으로 바꿔도됌
-        end
-
-        a_Gy = v^2 / RR;
-
-        % ZMP 값 다시 계산
-        x_zmp = (1/(2*m*(-g*cosd(pitch)*cosd(roll)))) * (-2*I_yy*alpha_y - 2*(I_xx-I_zz)*p*r + 2*m*g*H*sind(pitch) + m*g*T*abs(tand(roll-roll_terrain))*sind(pitch) + 2*m*H*a_Gx + m*T*a_Gx*abs(tand(roll-roll_terrain)) + ...
-            ((g*sind(pitch)+a_Gx)*(m*T*abs(tand(roll-roll_terrain))*(-g*cosd(pitch)*sind(roll)+a_Gy) + 2*(I_xx*alpha_x-(I_yy-I_zz)*q*r) - m*g*H*cosd(pitch)*sind(roll) + m*H*a_Gy))*tand(roll-roll_terrain)) / ...
-            (g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain) - a_Gy*(tand(roll-roll_terrain)));
-
-        y_zmp = (m*g*cos(pitch)*sin(roll)*(T*abs(tand(roll-roll_terrain))+2*H) - m*a_Gy*(T*abs(tand(roll-roll_terrain))+2*H) - 2*I_xx*alpha_x + 2*(I_yy-I_zz)*q*r) / ...
-            (2*m*(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain) - a_Gy*tand(roll-roll_terrain)));
-
-        % 좌표 변환 다시 수행
-        zmp = [x_zmp; y_zmp; 0];
-        zmp_centered = zmp - rotation_center;
-        result_zmp_centered = R * zmp_centered;
-        result_zmp = result_zmp_centered + rotation_center;
-        x_zmp_mod = result_zmp(1);
-        y_zmp_mod = result_zmp(2);
-
-        % 안정성 한계 다시 계산
-        Sau = (1/2) * (1 - (g / (4 * H) * (x_zmp_mod - max_x)));
-        Sal = (1/2) * (1 + (g / (4 * H) * (x_zmp_mod - min_x)));
-        Swu = (1/2) * (1 - (g / (4 * H)) * (y_zmp_mod - max_y));
-        Swl = (1/2) * (1 + (g / (4 * H)) * (y_zmp_mod - min_y));
+    % Sau, Sal, Swu, Swl 값이 0.5보다 작을 경우 속도 감소
+    if Sau < 0.5 || Sal < 0.5 || Swu < 0.5 || Swl < 0.5
+        v = v - v_increment;
+    % Sau, Sal, Swu, Swl 값이 모두 0.5보다 클 경우 속도 증가
+    elseif Sau > 0.5 && Sal > 0.5 && Swu > 0.5 && Swl > 0.5
+        v = v + v_increment;
     end
 
+    % 현재 위치 업데이트
+    x = x + v * cos(theta) * dt;
+    y = y + v * sin(theta) * dt;
+    theta = theta + alpha_z * dt;
+
+    % 그래프 그리기
     hold on
     plot([corners(1, :), corners(1, 1)], [corners(2, :), corners(2, 1)], 'b-')
     plot(x_zmp_mod, y_zmp_mod, '-o')
@@ -152,8 +144,17 @@ while true
     
     xlabel('x(m)');
     ylabel('y(m)');
+    axis equal
+    xlim([-1 1] + x);
+    ylim([-1 1] + y);
+    pause(dt); % 잠시 멈추어 시뮬레이션을 진행합니다.
 
-    
+    % 사용자에게 계속할 것인지 물어봅니다.
+    prompt = '그래프를 계속해서 그리시겠습니까? (Y/N): ';
+    answer = input(prompt, 's');
+    if ~strcmpi(answer, 'y')
+        break; % 사용자가 종료를 원하면 루프를 종료합니다.
+    end
 end
 
 % 마지막에 그린 모든 그래픽 요소를 함께 표시합니다.
