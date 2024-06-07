@@ -1,45 +1,41 @@
 clear
 clc
-figure_handle = figure; % 새로운 그림 요소를 만듭니다.
 
-while true
-    roll = input('roll 값을 입력하세요: ');
-    pitch = input('pitch 값을 입력하세요: ');
-    yaw = input('yaw 값을 입력하세요: ');
-    a_Gx = input('x방향 가속도를 입력하세요: ');
+    %로봇 모델
+    m = 70; % 로봇의 질량 (kg)
+    g = 9.81; % 중력 가속도 (m/s^2)
+    roll_terrain = 0;
 
-    t = 0.1;
-    p = roll / t;
-    q = pitch / t;
-    r = yaw / t;
-    alpha_x = p / t;
-    alpha_y = q / t;
-    alpha_z = r / t;
-    m = 70;
-    g = 9.81;
-    L = 0.85;
-    W = 0.5;
-    H = 1.1;
-    v = 2;
-    w = alpha_z;
-    
-    roll_terrain=0;
-    T=0.8;
-
-    RR=L/(20*(pi/180));
-    if r < 0
-        a_Gy = -v^2/RR;
-    elseif r == 0
-        a_Gy = 0;
-    else
-        a_Gy = v^2/RR;
-    end
+    T = 0.7;
+    L = 0.85; % 로봇의 길이 (m)
+    W = 0.5; % 로봇의 너비 (m)
+    H = 0.3+0.2+0.5; % 로봇의 무게중심 (m)
 
     I_xx = 10.0475;
     I_yy = 5.67291;
     I_zz = 7.29166;
-
     I = [I_xx 0 0; 0 I_yy 0; 0 0 I_zz];
+
+
+    %각도 모두 degree
+    roll = input('roll 값을 입력하세요: ');
+    pitch = input('pitch 값을 입력하세요: ');
+    yaw = input('yaw 값을 입력하세요: ');
+    a_Gx = input('x방향 가속도를 입력하세요: ');
+    dt=1;
+    
+    % 가속도 및 각가속도 계산
+    p = roll / dt;
+    q = pitch / dt;
+    r = yaw / dt;
+    alpha_x = p / dt;
+    alpha_y = q / dt;
+    alpha_z = r / dt;
+    v = 4; 
+    vmax=4;
+    w = r*pi/180;
+    a_Gy = v*w
+    
 
     R_roll = [
         1 0 0;
@@ -48,9 +44,9 @@ while true
     ];
 
     R_pitch = [
-        cosd(pitch) 0 -sind(pitch);
+        cosd(pitch) 0 sind(pitch);
         0 1 0;
-        sind(pitch) 0 cosd(pitch)
+        -sind(pitch) 0 cosd(pitch)
     ];
 
     R_yaw = [
@@ -61,22 +57,20 @@ while true
 
     R = R_yaw * R_pitch * R_roll;
 
-    % 회전 중심을 설정합니다.
-    rotation_center = [0; 0; 0];
 
-    % x_zmp와 y_zmp 계산
+    % x_zmp와 y_zmp 계산(각도는 모두 degree)
     x_zmp = (1/(2*m*(-g*cosd(pitch)*cosd(roll)))) * (-2*I_yy*alpha_y - 2*(I_xx-I_zz)*p*r + 2*m*g*H*sind(pitch) + m*g*T*abs(tand(roll-roll_terrain))*sind(pitch) + 2*m*H*a_Gx + m*T*a_Gx*abs(tand(roll-roll_terrain)) + ...
         ((g*sind(pitch)+a_Gx)*(m*T*abs(tand(roll-roll_terrain))*(-g*cosd(pitch)*sind(roll)+a_Gy) + 2*(I_xx*alpha_x-(I_yy-I_zz)*q*r) - m*g*H*cosd(pitch)*sind(roll) + m*H*a_Gy))*tand(roll-roll_terrain)) / ...
         (g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain) - a_Gy*(tand(roll-roll_terrain)));
 
-    y_zmp = (m*g*cos(pitch)*sin(roll)*(T*abs(tand(roll-roll_terrain))+2*H) - m*a_Gy*(T*abs(tand(roll-roll_terrain))+2*H) - 2*I_xx*alpha_x + 2*(I_yy-I_zz)*q*r) / ...
+    y_zmp = (m*g*cosd(pitch)*sind(roll)*(T*abs(tand(roll-roll_terrain))+2*H) - m*a_Gy*(T*abs(tand(roll-roll_terrain))+2*H) - 2*I_xx*alpha_x + 2*(I_yy-I_zz)*q*r) / ...
         (2*m*(g*cosd(pitch)*cosd(roll_terrain)*secd(roll-roll_terrain) - a_Gy*tand(roll-roll_terrain)));
 
     % 좌표 변환
     zmp = [x_zmp; y_zmp; 0];
-    zmp_centered = zmp - rotation_center;
+    zmp_centered = zmp ;
     result_zmp_centered = R * zmp_centered;
-    result_zmp = result_zmp_centered + rotation_center;
+    result_zmp = result_zmp_centered ;
     x_zmp_mod = result_zmp(1);
     y_zmp_mod = result_zmp(2);
 
@@ -89,41 +83,56 @@ while true
     ]';
 
     % 좌표 변환
-    corners_centered = corners - rotation_center;
-    cdn_mod = R * corners_centered + rotation_center;
+    transformed_corners = R * corners;
+    cdn_mod = R * corners;
 
-    % 좌표 배열
-    x_values = cdn_mod(1, :);
-    y_values = cdn_mod(2, :);
+    % Xu, Xl, Yu. Yl
+    Xu=[L/2; y_zmp; 1];
+    Xl=[-L/2; y_zmp; 1];
+    Yu=[x_zmp; W/2; 1];
+    Yl=[x_zmp; -W/2; 1];
+    
+    %회전행렬이 적용된 Xu, Xl, Yu, Yl
+    RXu=R*Xu;
+    RXl=R*Xl;
+    RYu=R*Yu;
+    RYl=R*Yl;
 
     % 최대값과 최소값 계산
-    max_x = max(x_values);
-    min_x = min(x_values);
-    max_y = max(y_values);
-    min_y = min(y_values);
+    max_x = RXu(1,1);
+    min_x = RXl(1,1);
+    max_y = RYu(2,1);
+    min_y = RYl(2,1);
 
-    Sau = (1/2) * (1 - (g / (4 * H) * (x_zmp_mod - max_x)))
-    Sal = (1/2) * (1 + (g / (4 * H) * (x_zmp_mod - min_x)))
-    Swu = (1/2) * (1 - (g / (4 * H)) * (y_zmp_mod - max_y))
-    Swl = (1/2) * (1 + (g / (4 * H)) * (y_zmp_mod - min_y))
+    amax=8;
+    wmax=pi/2;
+    vwmax=vmax*wmax;
 
+    % 안정성 한계 계산
+    Sau = (1/2) * (1 - (g / (amax * H) * (x_zmp_mod - max_x)))
+    Sal = (1/2) * (1 + (g / (amax * H) * (x_zmp_mod - min_x)))
+    Swu = (1/2) * (1 - (g / (vwmax * H)) * (y_zmp_mod - max_y))
+    Swl = (1/2) * (1 + (g / (vwmax * H)) * (y_zmp_mod - min_y))
+
+    % 그래프 그리기
     hold on
     plot([corners(1, :), corners(1, 1)], [corners(2, :), corners(2, 1)], 'b-')
     plot(x_zmp_mod, y_zmp_mod, '-o')
     text(x_zmp_mod, y_zmp_mod, 'x_zmp, y_zmp')
+    plot(RXu(1,1),RXu(2,1),'-o');
+    plot(RXl(1,1),RXl(2,1),'-o');
+    plot(RYu(1,1),RYu(2,1),'-o');
+    plot(RYl(1,1),RYl(2,1),'-o');
     plot([cdn_mod(1, :), cdn_mod(1, 1)], [cdn_mod(2, :), cdn_mod(2, 1)], 'r-')
     hold off
     
     xlabel('x(m)');
     ylabel('y(m)');
+    axis equal
+    xlim([-1 1] );
+    ylim([-1 1] );
+  
 
-    % 사용자에게 계속할 것인지 물어봅니다.
-    prompt = '그래프를 계속해서 그리시겠습니까? (Y/N): ';
-    answer = input(prompt, 's');
-    if ~strcmpi(answer, 'y')
-        break; % 사용자가 종료를 원하면 루프를 종료합니다.
-    end
-end
 
 % 마지막에 그린 모든 그래픽 요소를 함께 표시합니다.
 legend('Initial position', 'ZMP', 'Projection Polygon')
