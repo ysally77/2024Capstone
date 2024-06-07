@@ -86,6 +86,7 @@ public class Pathfinding : MonoBehaviour
 
     }
 
+
     Vector3[] RetracePath(Node startNode, Node endNode)
     {
         List<Node> path = new List<Node>();
